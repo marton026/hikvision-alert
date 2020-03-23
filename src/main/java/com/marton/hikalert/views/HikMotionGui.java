@@ -58,8 +58,13 @@ public class HikMotionGui extends VerticalLayout {
                 frequencyNumberField, ltest, buttonStartStop,buttonMenu);
 
         lMain.setText("Ustawienia kamery Hikvision");
+       // ipAddressTextField.setSizeFull();
+        ipAddressTextField.setRequired(true);
+        ipAddressTextField.setErrorMessage("Podaj adres IP kamery");
         userTextField.setPlaceholder("Użytkownik");
         passTextField.setPlaceholder("Hasło");
+        passTextField.setRequired(true);
+        passTextField.setErrorMessage("Podaj hasło");
         lsensitive.setText("Wybierz czułość detekcji ruchu:");
         sensNumberField.setValue(1d);
         sensNumberField.setHasControls(true);
@@ -89,24 +94,31 @@ public class HikMotionGui extends VerticalLayout {
                         userTextField.getValue(), passTextField.getValue(), String.valueOf((int) aDouble));
             } catch (IOException e) {
                 e.printStackTrace();
+                System.out.println("Wyjątek "+e);
             }
         });
 
         buttonStartStop.addClickListener(buttonClickEvent -> {
-            if (hikCommand.ifStart==false) {
-                try {
-                    double freqDouble = Double.valueOf(frequencyNumberField.getValue());
-                    hikCommand.stopStart(new URL("http://" + ipAddressTextField.getValue() +
-                                    "/Event/notification/alertStream"),
-                            userTextField.getValue(), passTextField.getValue(),  Integer.parseInt(String.valueOf((int) freqDouble)));
-                    hikCommand.ifStart=true;
-                    buttonStartStop.setText("Stop");
-                } catch (IOException e) {
-                    e.printStackTrace();
+            ipAddressTextField.setRequired(true);
+            ipAddressTextField.setErrorMessage("Podaj adres IP kamery");
+            ipAddressTextField.addValueChangeListener(e ->{});
+            passTextField.setRequired(true);
+            if (!ipAddressTextField.getValue().isEmpty()) {
+                if (hikCommand.ifStart==false) {
+                    try {
+                        double freqDouble = Double.valueOf(frequencyNumberField.getValue());
+                        hikCommand.stopStart(new URL("http://" + ipAddressTextField.getValue() +
+                                        "/Event/notification/alertStream"),
+                                userTextField.getValue(), passTextField.getValue(),  Integer.parseInt(String.valueOf((int) freqDouble)));
+                        hikCommand.ifStart=true;
+                        buttonStartStop.setText("Stop");
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    hikCommand.ifStart=false;
+                    buttonStartStop.setText("Start");
                 }
-            } else {
-                hikCommand.ifStart=false;
-                buttonStartStop.setText("Start");
             }
         });
     }
