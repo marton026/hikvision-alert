@@ -32,6 +32,8 @@ public class HikMotionGui extends VerticalLayout {
     private NumberField frequencyNumberField;
     private Button buttonSave;
     private Label ltest;
+    private TextField phoneNoTextField;
+    private TextField messageTextField;
     private HikCommand hikCommand;
     private Button buttonStartStop;
     private Button buttonMenu;
@@ -50,12 +52,14 @@ public class HikMotionGui extends VerticalLayout {
         frequencyNumberField = new NumberField();
         buttonSave = new Button("Zatwierdź");
         ltest = new Label();
+        phoneNoTextField = new TextField("Numer telefonu na który wysyłamy alert","","Numer telefonu");
+        messageTextField = new TextField("Wiadomość jaka ma być wysłana","Kamera KAM1 wykryła ruch","");
         buttonStartStop = new Button();
         buttonMenu = new Button("Menu");
 
         add(lMain, ipAddressTextField, userTextField, passTextField,
                 motionCheck, lsensitive, sensNumberField, buttonSave,lfrequency,
-                frequencyNumberField, ltest, buttonStartStop,buttonMenu);
+                frequencyNumberField, ltest,phoneNoTextField,messageTextField, buttonStartStop,buttonMenu);
 
         lMain.setText("Ustawienia kamery Hikvision");
        // ipAddressTextField.setSizeFull();
@@ -109,7 +113,9 @@ public class HikMotionGui extends VerticalLayout {
                         double freqDouble = Double.valueOf(frequencyNumberField.getValue());
                         hikCommand.stopStart(new URL("http://" + ipAddressTextField.getValue() +
                                         "/Event/notification/alertStream"),
-                                userTextField.getValue(), passTextField.getValue(),  Integer.parseInt(String.valueOf((int) freqDouble)));
+                                userTextField.getValue(), passTextField.getValue(),
+                                Integer.parseInt(String.valueOf((int) freqDouble)),phoneNoTextField.getValue(),
+                                messageTextField.getValue());
                         hikCommand.ifStart=true;
                         buttonStartStop.setText("Stop");
                     } catch (IOException e) {

@@ -17,12 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 @PageTitle("Bramka SMS")
 public class SmsGui extends VerticalLayout {
 
-
-    private Button changeText;
     private TextField textFieldNo;
     private TextField textFieldMessage;
     private Button buttonSendSms;
-    private Label notific;
     private Button buttonMenu;
     private ModemConnection modemConnection;
 
@@ -32,13 +29,11 @@ public class SmsGui extends VerticalLayout {
         textFieldNo = new TextField();
         textFieldMessage = new TextField();
         buttonSendSms = new Button("Send SMS !!!");
-        changeText = new Button("Zmień tekst");
-        notific = new Label("  Wiadomość wysłana  ");
         buttonMenu = new Button("Menu");
-        NativeButton buttonInside = new NativeButton("OK");
-        Notification notification = new Notification(notific, buttonInside);
+        Notification notification = new Notification("  Wiadomość wysłana  ",3000, Notification.Position.MIDDLE);
+        Notification notificationData =new Notification("Wprowadź brakujące dane",2000, Notification.Position.MIDDLE);
 
-        add(textFieldNo, textFieldMessage, buttonSendSms, changeText,buttonMenu);
+        add(textFieldNo, textFieldMessage, buttonSendSms,buttonMenu);
 
         textFieldNo.setPlaceholder("nr telefonu");
         textFieldMessage.setPlaceholder("Wiadomość...");
@@ -46,12 +41,12 @@ public class SmsGui extends VerticalLayout {
         buttonMenu.addClickListener(e -> UI.getCurrent().navigate(MenuView.class));
 
         buttonSendSms.addClickListener(buttonClickEvent -> {
-            modemConnection.sendSMS(textFieldNo.getValue(), textFieldMessage.getValue());
-
-            notification.setDuration(2000);
-            buttonInside.addClickListener(event -> notification.close());
-            notification.setPosition(Notification.Position.MIDDLE);
-            notification.open();
+            if (textFieldNo.getValue().isEmpty() || textFieldMessage.getValue().isEmpty()) {
+                notificationData.open();
+            } else {
+                modemConnection.sendSMS(textFieldNo.getValue(), textFieldMessage.getValue());
+                notification.open();
+            }
         });
     }
 }

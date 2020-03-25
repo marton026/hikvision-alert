@@ -83,7 +83,7 @@ public class HikCommand {
     }
 
 
-    public void eventDetect(URL url, String usern, String passw, int frequencyTime) throws IOException {
+    public void eventDetect(URL url, String usern, String passw, int frequencyTime,String phoneNo, String message) throws IOException {
         HttpURLConnection con = prepareConn(url, "GET", null, usern, passw);
         con.setRequestMethod("GET");
         con.setRequestProperty("Content-Type", "text/xml");
@@ -104,6 +104,7 @@ public class HikCommand {
                     if (i == frequencyTime) {
                         System.out.println(" ------- Wykryto ruch. Wysłano SMS-a ---------");
                        // modemConnection.sendSMS("883277383", "Motion Detection from Hkvision");
+                        modemConnection.sendSMS(phoneNo, message);
                     }
                 }
                 if (inputLine.equals("<eventState>inactive</eventState>")) {
@@ -120,12 +121,12 @@ public class HikCommand {
         }
     }
 
-    public void stopStart(URL url, String usern, String passw, int frequencyTime) {
+    public void stopStart(URL url, String usern, String passw, int frequencyTime, String phoneNo, String message) {
         new Thread(() ->{
             while (true) {
                 if (ifStart) {
                     try {
-                        eventDetect(url,usern,passw,frequencyTime);
+                        eventDetect(url,usern,passw,frequencyTime,phoneNo,message);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
