@@ -143,7 +143,7 @@ public class HikCommand {
         System.out.println("Autoryzacja......");
         if (!url.getProtocol().equalsIgnoreCase("http"))
             throw new Error(url.toString() + " Niepoprawny url!");
-
+        // TODO: 2020-03-25 obsługa poprawnego zalogowania do kamery
         final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setConnectTimeout(300);
         conn.setRequestMethod(method);
