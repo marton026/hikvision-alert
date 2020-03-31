@@ -2,7 +2,6 @@ package com.marton.hikalert.views;
 
 import com.marton.hikalert.MenuView;
 import com.marton.hikalert.controllers.HikCommand;
-import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.checkbox.Checkbox;
@@ -14,7 +13,6 @@ import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
-
 import java.io.IOException;
 import java.net.URL;
 

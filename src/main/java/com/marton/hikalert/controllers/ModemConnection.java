@@ -13,7 +13,7 @@ public class ModemConnection {
     SerialPort serialPort;
 
     public ModemConnection() throws SerialPortException {
-        this.serialPort = new SerialPort("/dev/ttyUSB0"); ///dev/ttyUSB0
+        this.serialPort = new SerialPort("/dev/ttyUSB0"); //COM11
         serialPort.openPort();
         serialPort.setParams(SerialPort.BAUDRATE_9600,
                 SerialPort.DATABITS_8,
