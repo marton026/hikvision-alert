@@ -14,6 +14,7 @@ import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.router.Route;
 import org.springframework.beans.factory.annotation.Autowired;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.net.URL;
 
 
@@ -21,29 +22,34 @@ import java.net.URL;
 public class HikMotionGui extends VerticalLayout {
 
     private Label lMain;
-    private TextField ipAddressTextField;
-    private TextField userTextField;
-    private PasswordField passTextField;
-    private Checkbox motionCheck;
+    public TextField ipAddressTextField;
+    public TextField userTextField;
+    public PasswordField passTextField;
+    public Checkbox motionCheck;
     private Label lsensitive;
-    private NumberField sensNumberField;
+    public NumberField sensNumberField;
     private Label lfrequency;
     private NumberField frequencyNumberField;
     private Button buttonSave;
     private Label ltest;
     private TextField phoneNoTextField;
     private TextField messageTextField;
+    private Label lIpcheck;
+    private TextField ipCheckTextField;
     private HikCommand hikCommand;
     private Button buttonStartStop;
+    private Button buttonOnOff;
     private Button buttonMenu;
 
     @Autowired
     public HikMotionGui(HikCommand hikCommand) {
         this.hikCommand = hikCommand;
         lMain = new Label();
-        ipAddressTextField = new TextField("IP kamery: np:192.168.0.111:81");
+        //ipAddressTextField = new TextField("IP kamery: np:192.168.0.111:81");
+        ipAddressTextField = new TextField("IP kamery: np:192.168.0.111:81","192.168.0.133:86","");
         userTextField = new TextField("Użytkownik:","admin","");
-        passTextField = new PasswordField("Hasło:");
+        //passTextField = new PasswordField("Hasło:");
+        passTextField = new PasswordField("Hasło:","6451Marcin021",null);
         motionCheck = new Checkbox("Detekcja ruchu:");
         lsensitive = new Label();
         sensNumberField = new NumberField();
@@ -51,14 +57,18 @@ public class HikMotionGui extends VerticalLayout {
         frequencyNumberField = new NumberField();
         buttonSave = new Button("Zatwierdź");
         ltest = new Label();
-        phoneNoTextField = new TextField("Numer telefonu na który wysyłamy alert","","Numer telefonu");
+        phoneNoTextField = new TextField("Numer telefonu na który wysyłamy alert","883277383","Numer telefonu");
         messageTextField = new TextField("Wiadomość jaka ma być wysłana","Kamera KAM1 wykryła ruch","");
+        lIpcheck = new Label("Wprowadź IP telefonu, który wyłączy detekcję ruchu na kamerze");
+        ipCheckTextField = new TextField("","192.168.0.38","");
         buttonStartStop = new Button();
+        buttonOnOff = new Button("On");
         buttonMenu = new Button("Menu");
 
         add(lMain, ipAddressTextField, userTextField, passTextField,
                 motionCheck, lsensitive, sensNumberField, buttonSave,lfrequency,
-                frequencyNumberField, ltest,phoneNoTextField,messageTextField, buttonStartStop,buttonMenu);
+                frequencyNumberField, ltest,phoneNoTextField,messageTextField,buttonStartStop,lIpcheck,
+                ipCheckTextField, buttonOnOff,buttonMenu);
 
         lMain.setText("Ustawienia kamery Hikvision");
        // ipAddressTextField.setSizeFull();
@@ -86,8 +96,9 @@ public class HikMotionGui extends VerticalLayout {
             buttonStartStop.setText("Stop");
         } else {
             buttonStartStop.setText("Start");
+            //buttonOnOff.setText("On");
         }
-
+        double aDouble = Double.valueOf(sensNumberField.getValue());
         buttonMenu.addClickListener(e -> UI.getCurrent().navigate(MenuView.class));
 
         buttonSave.addClickListener(buttonClickEvent -> {
@@ -95,7 +106,7 @@ public class HikMotionGui extends VerticalLayout {
                 notification.open();
             } else {
                 try {
-                    double aDouble = Double.valueOf(sensNumberField.getValue());
+
                     hikCommand.motionDetection(new URL("http://" + ipAddressTextField.getValue() +
                                     "/MotionDetection/1"), motionCheck.getValue(),
                             userTextField.getValue(), passTextField.getValue(), String.valueOf((int) aDouble));
@@ -126,10 +137,22 @@ public class HikMotionGui extends VerticalLayout {
                 } else {
                     hikCommand.ifStart = false;
                     buttonStartStop.setText("Start");
+                    buttonOnOff.setText("On");
                 }
             } else {
                 notification.open();
             }
+        });
+
+        buttonOnOff.addClickListener(buttonClickEvent -> {
+            try {
+                hikCommand.ping(new URL("http://" + ipAddressTextField.getValue() +
+                                "/MotionDetection/1"),
+                        userTextField.getValue(), passTextField.getValue(), String.valueOf((int) aDouble),ipCheckTextField.getValue());
+            } catch (MalformedURLException e) {
+                e.printStackTrace();
+            }
+            buttonOnOff.setText("Off");
         });
     }
 }
