@@ -1,13 +1,14 @@
 package com.marton.hikalert.controllers;
 
+import com.marton.hikalert.views.HikMotionGui;
 import org.springframework.stereotype.Component;
 import sun.misc.BASE64Encoder;
-
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.net.HttpURLConnection;
+import java.net.InetAddress;
 import java.net.URL;
 import java.util.Properties;
 
@@ -15,12 +16,11 @@ import java.util.Properties;
 public class HikCommand {
     private int i = 1;
     private ModemConnection modemConnection;
+    private HikMotionGui hikMotionGui;
     public boolean ifStart;
-//    private URL url;
-//    private String usern;
-//    private String passw;
-//    private int freq;
-
+    public boolean ifMotion;
+    public boolean reachable;
+    private int sign1, sign2;
 
     public HikCommand(ModemConnection modemConnection) {
 
@@ -83,7 +83,8 @@ public class HikCommand {
     }
 
 
-    public void eventDetect(URL url, String usern, String passw, int frequencyTime,String phoneNo, String message) throws IOException {
+    public void eventDetect(URL url, String usern, String passw, int frequencyTime,String phoneNo,
+                            String message) throws IOException {
         HttpURLConnection con = prepareConn(url, "GET", null, usern, passw);
         con.setRequestMethod("GET");
         con.setRequestProperty("Content-Type", "text/xml");
@@ -94,11 +95,9 @@ public class HikCommand {
                     con.getInputStream()
             ));
 
-           // System.out.println(ifStart);
             String  inputLine;
 
             while ((inputLine = in.readLine()) != null && ifStart) {
-              //  System.out.println("Czy działa     = "+ifStart);
                 if (inputLine.equals("<eventState>active</eventState>")) {
                     System.out.println(i++ + "Wykryto ruch");
                     if (i == frequencyTime) {
@@ -111,17 +110,56 @@ public class HikCommand {
                     System.out.println("Brak ruchu");
                     i = 0;
                 }
-            }
-
-
+               }
             in.close();
             con.disconnect();
-        } else {
+        }
+        else {
             System.out.println("Żądanie GET nie odpowiada");
         }
     }
 
-    public void stopStart(URL url, String usern, String passw, int frequencyTime, String phoneNo, String message) {
+    public void ping(URL url, String usern, String passw, String sensitive,String ip1) {
+        new Thread(() -> {
+            while (true) {
+                if (ifStart) {
+                    try {
+                        try {
+                            reachable = InetAddress.getByName(ip1).isReachable(2000);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                       // System.out.println("reachable: "+reachable);
+                        if (reachable==true) {
+                            sign1 =1;
+                        } else {
+                            sign2 =-1;
+                        }
+                    } catch (NumberFormatException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        Thread.sleep(6000);
+                        if (sign1 * sign2 ==-1) {
+                            if (reachable) {
+                                System.out.println("Telefon w zasięgu. Wyłączono detekcję ruchu");
+                            } else {
+                                System.out.println("Telefon poza zasięgiem sieci. Włączono detekcję");
+                            }
+                            motionDetection(url,!reachable,usern,passw,sensitive);
+                            sign1 =0;
+                            sign2 =0;
+                        }
+                    } catch (Exception e) {
+                    }
+                }
+            }
+        }).start();
+    }
+
+
+    public void stopStart(URL url, String usern, String passw, int frequencyTime, String phoneNo,
+                          String message) {
         new Thread(() ->{
             while (true) {
                 if (ifStart) {
@@ -143,7 +181,7 @@ public class HikCommand {
         System.out.println("Autoryzacja......");
         if (!url.getProtocol().equalsIgnoreCase("http"))
             throw new Error(url.toString() + " Niepoprawny url!");
-
+        // TODO: 2020-03-25 obsługa poprawnego zalogowania do kamery
         final HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setConnectTimeout(300);
         conn.setRequestMethod(method);
