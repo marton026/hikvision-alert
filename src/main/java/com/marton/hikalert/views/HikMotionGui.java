@@ -45,11 +45,9 @@ public class HikMotionGui extends VerticalLayout {
     public HikMotionGui(HikCommand hikCommand) {
         this.hikCommand = hikCommand;
         lMain = new Label();
-        //ipAddressTextField = new TextField("IP kamery: np:192.168.0.111:81");
-        ipAddressTextField = new TextField("IP kamery: np:192.168.0.111:81","192.168.0.133:86","");
+        ipAddressTextField = new TextField("IP kamery: np:192.168.0.111:81");
         userTextField = new TextField("Użytkownik:","admin","");
-        //passTextField = new PasswordField("Hasło:");
-        passTextField = new PasswordField("Hasło:","6451Marcin021",null);
+        passTextField = new PasswordField("Hasło:");
         motionCheck = new Checkbox("Detekcja ruchu:");
         lsensitive = new Label();
         sensNumberField = new NumberField();
